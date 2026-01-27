@@ -1,0 +1,14 @@
+# --- ARMSim# y simuladores ---
+*.log
+*.dump
+*.mem
+*.swi
+*.bak
+*.history
+
+# --- Sistema Operativo ---
+.DS_Store
+Thumbs.db
+
+# --- Otros ---
+*.tmp
