@@ -1,39 +1,45 @@
-.equ SWI_Print_String, 0x02
-.equ SWI_Print_Int,    0x6B  @ Imprime Entero Decimal (R1 = valor, R0 = fd)
-.equ SWI_Read_Int,     0x6C  @ Lee Entero Decimal (Retorna valor en R0)
-.equ SWI_Exit,         0x11
+	@ constantes
+	.equ SWI_Open_File,  0x66
+	.equ SWI_Read_Int,   0x6C
+	.equ SWI_Print_Int,  0x6B
+	.equ SWI_Close_File, 0x68
+	.equ SWI_Exit,		 0x11
 
-.data
-input_message:
-	.asciz "Ingresa un numero: "
-output_message:
-	.asciz "\nIngresaste: "
+	@ sección de datos - datos que el programa usará
+	.data
+filename:
+	.asciz "entero.txt"
 
-.text
-.global _start
+	@ sección de código - porción ejecutable del código
+	.text
+	.global _start
 
 _start:
-	ldr r0, =input_message
-	swi SWI_Print_String
+	@ carga el puntero al string en el registro r0
+	ldr r0, =filename
+	mov r1, #0			@ abrir para lectura
+	swi SWI_Open_File	@ abrir el archivo
 
-	@ --- Leer el entero ---
-	swi SWI_Read_Int     @ El programa espera input. El valor leído queda en R0.
+	@ copia el manejador de archivo de r0 a r5
+	mov r5, r0
 
-	@ R0 se va a usar ahora para imprimir el siguiente texto.
-	@ Si no movemos el número a otro lado (R1), lo perdemos.
+	@ lee un entero desde el archivo
+	@ PRECOND  - r0: manejador del archivo
+	@ POSTCOND - r0: entero leído desde el archivo
+	swi SWI_Read_Int
+
+	@ mostrar el entero por pantalla
+	@ PRECOND - r0: dónde mostrar (1: stdout)
+	@ PRECOND - r1: entero a mostrar
 	mov r1, r0
-
-	ldr r0, =output_message
-	swi SWI_Print_String
-
-	@ --- Imprimir el número leído ---
-	@ Requisitos de SWI 0x6B:
-	@ R0 = 1 = Pantalla/Stdout
-	@ R1 = El número entero a imprimir
-
-	mov r0, #1           @ Le decimos al simulador: "Imprimí en la pantalla"
+	mov r0, #1
 	swi SWI_Print_Int
 
+	@ cerrar el archivo
+	@ PRECOND - r0: manejador del archivo
+	mov r0, r5
+	swi SWI_Close_File
+
+	@ solicita a ARMSim que salga del programa
 	swi SWI_Exit
 	.end
-
