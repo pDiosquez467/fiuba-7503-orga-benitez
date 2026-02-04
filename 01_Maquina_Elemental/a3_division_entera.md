@@ -1,32 +1,33 @@
+**Objetivo:** Calcular $X / Y$.
+* Cociente en `300`.
+* Resto en `301`.
+* Si $X - Y < 0$, terminamos (y no contamos esa resta).
+* Si $X - Y \geq 0$, guardamos el nuevo valor en $X$ y sumamos 1 al Cociente.
 
-@ PRE: El valor contenido en la celda (250) (16) debe ser
-distinto de cero.
+## Código Solución
 
-DIR | CONT | OBS.
-
-4FE | #### | OPUESTO DE (250)
-4FF | 0001 | CTE = 1 (10)
-
-500 | 0000 | (AC)  = 0000
-501 | 2300 | (300) = 0000
-
--- Copia defensiva --
-502 | 1150 | (AC)  = (150)
-503 | 2301 | (301) = (150)
-
-504 | 1250 | (AC)  = (250)
-505 | 4000 | (AC)  = NOT[(250)]
-506 | 34FF | (AC)  = -(250)
-507 | 24FE | (4FE) = -(250)
-
-508 | 1301 | (AC)  = (301)
-509 | 34FE | (AC)  = (301) - (4FE)
-50A | 7511 | BIF. SI (AC) < 0
-50B | 2301 | (301) = (301) - (4FE)
-50C | 0001 | (AC)  = 0001
-50D | 3300 | (AC)  = (300) + 1
-50E | 2300 | (300)++
-50F | 0000 | (AC) = 0000
-510 | 5508 | BIF. INCONDICIONAL
-511 | F000 | FIN 
- 
+| DIR | CONTENIDO | OBS | COMENTARIOS |
+| :-- | :-- | :-- | :-- |
+| **4FE** | `####` | `VAR` | Variable temporal para -Y |
+| **4FF** | `0001` | `CTE=1` | Constante 1 |
+| **---** | **---** | **---** | **INICIALIZACIÓN** |
+| **500** | `0000` | `AC=0` | Carga 0 |
+| **501** | `2300` | `(300)=0` | Inicializo Cociente = 0 |
+| **502** | `1150` | `(AC)=X` | Cargo X |
+| **503** | `2301` | `(301)=AC` | Inicializo Resto = X |
+| **---** | **---** | **---** | **PREPARAR -Y (COMPLEMENTO)** |
+| **504** | `1250` | `(AC)=Y` | Cargo Y |
+| **505** | `4000` | `NOT` | Invierto bits |
+| **506** | `34FF` | `AC+1` | Sumo 1 -> Tengo -Y |
+| **507** | `24FE` | `Store` | Guardo -Y en 4FE |
+| **---** | **---** | **---** | **BUCLE DE DIVISIÓN** |
+| **508** | `1301` | `(AC)=Resto` | Cargo Resto actual |
+| **509** | `34FE` | `AC+(-Y)` | Resto Y (en el Acumulador) |
+| **50A** | `7511` | `SI<0 GOTO` | **Check:** Si dio negativo, Termino (Voy a 511) |
+| **50B** | `2301` | `Store` | Si positivo, actualizo Resto |
+| **50C** | `1300` | `(AC)=Coc` | Cargo Cociente |
+| **50D** | `34FF` | `AC+1` | Sumo 1 (Cuento la resta) |
+| **50E** | `2300` | `Store` | Guardo Cociente |
+| **50F** | `0000` | `AC=0` | Preparo salto |
+| **510** | `5508` | `GOTO` | Repito el bucle |
+| **511** | `F000` | `FIN` | Fin del Programa |
